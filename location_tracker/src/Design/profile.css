@@ -1,0 +1,47 @@
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    margin: auto;
+    text-align: center;
+    font-family: arial;
+  }
+
+  .title {
+    color: grey;
+    font-size: 18px;
+  }
+
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+
+  .bus-schedule {
+    margin-top: 30px;
+  }
+
+  /* Added styles for top bar and layout adjustments */
+  .top-bar {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+  }
+
+  .card-container {
+    margin-top: 20px;
+  }
+  
+  .card-container .card {
+    margin-bottom: 20px;
+  }
