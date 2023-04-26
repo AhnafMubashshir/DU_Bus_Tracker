@@ -9,6 +9,7 @@ const UserHome = () => {
     const navigate = useNavigate();
     const e = useParams()
     const email = e.uID
+    const ip = 'localhost:5050';
     const [loading, setLoading] = useState(true);
     const [positions, setPositions] = useState([]);
     const [isAuthenticated, setIsAuthenticated] = useState(null)
@@ -16,7 +17,7 @@ const UserHome = () => {
 
     const getPositions = async () => {
         try {
-            const response = await axios.post('http://localhost:5050/getPositions');
+            const response = await axios.post(`http://${ip}/getPositions`);
             setPositions(response.data)
         } catch (error) {
             console.error(error);
@@ -27,7 +28,7 @@ const UserHome = () => {
 
         const token = AuthService.getToken()
 
-        axios.post('http://localhost:5050/checkValidation', {
+        axios.post(`http://${ip}/checkValidation`, {
             token: token,
             email: email
         }).then((response) => {
@@ -42,7 +43,7 @@ const UserHome = () => {
 
         const savePosition = (latitude, longitude) => {
             try {
-                axios.post('http://localhost:5050/savePosition', {
+                axios.post(`http://${ip}/savePosition`, {
                     email,
                     latitude,
                     longitude,

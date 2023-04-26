@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthService from './AuthService';
 
 const Login = () => {
+    const ip = 'localhost:5050';
 
     const navigate = useNavigate()
 
@@ -63,7 +64,7 @@ const Login = () => {
             const loginSign = 'True';
             console.log({ email, password });
 
-            axios.post('http://localhost:5050/verifyUser', {
+            axios.post(`http://${ip}/verifyUser`, {
                 email,
                 password,
                 loginSign

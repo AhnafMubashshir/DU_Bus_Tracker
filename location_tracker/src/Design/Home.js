@@ -4,12 +4,13 @@ import './css/container.css'
 import axios from 'axios';
 
 const Home = () => {
+  const ip = 'localhost:5050';
 
   const [positions, setPositions] = useState([]);
 
   const getPositions = async () => {
     try {
-      const response = await axios.post('http://localhost:5050/getPositions');
+      const response = await axios.post(`http://${ip}/getPositions`);
       setPositions(response.data)
     } catch (error) {
       console.error(error);

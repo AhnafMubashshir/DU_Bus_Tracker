@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import "../Design/profile.css"
 
 const Profile = () => {
+    const ip = 'localhost:5050';
     const navigate = useNavigate();
     const e = useParams()
     const email = e.uID
@@ -18,7 +19,7 @@ const Profile = () => {
     // console.log('====================================');
 
 
-    axios.post('http://localhost:5050/getUserInfo', {
+    axios.post(`http://${ip}/getUserInfo`, {
         email: email
     }).then((response) => {
         // console.log("User Info: ", response.data);
@@ -34,7 +35,7 @@ const Profile = () => {
 
         const token = AuthService.getToken()
 
-        axios.post('http://localhost:5050/checkValidation', {
+        axios.post(`http://${ip}/checkValidation`, {
             token: token,
             email: email
         }).then((response) => {
@@ -53,7 +54,7 @@ const Profile = () => {
                 console.log('====================================');
                 console.log({ latitude, longitude });
                 console.log('====================================');
-                axios.post('http://localhost:5050/savePosition', {
+                axios.post(`http://${ip}/savePosition`, {
                     email,
                     latitude,
                     longitude,

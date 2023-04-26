@@ -4,6 +4,7 @@ import AuthService from "./AuthService";
 import axios from "axios";
 
 const LogOut = () => {
+  const ip = 'localhost:5050';
   const navigate = useNavigate();
   const e = useParams();
   const email = e.uID;
@@ -14,7 +15,7 @@ const LogOut = () => {
 
     const loginSign = 'False';
 
-    axios.post('http://localhost:5050/updateLoginSign', {
+    axios.post(`http://${ip}/updateLoginSign`, {
       email,
       loginSign
     }).then(response => {

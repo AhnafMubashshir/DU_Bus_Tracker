@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const Registration = () => {
 
     const navigate = useNavigate()
+    const ip = 'localhost:5050';
 
     const [formData, setFormData] = useState({
         name: '',
@@ -90,7 +91,7 @@ const Registration = () => {
             const { name, bus_name, bus_code, email, password } = formData
             console.log({ name, email, password });
 
-            axios.post('http://localhost:5050/submitData', {
+            axios.post(`http://${ip}/submitData`, {
                 name,
                 bus_name,
                 bus_code,
