@@ -4,23 +4,42 @@ const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const AuthService = require('./AuthService')
+const mongoose = require('mongoose');
+const { DOUBLE } = require('sequelize')
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-const mysql = require('mysql');
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'webtech'
-})
-db.connect(err => {
-    if (err) {
-        return err;
-    }
-})
+// const mysql = require('mysql');
+// const db = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: '',
+//     database: 'webtech'
+// })
+// db.connect(err => {
+//     if (err) {
+//         return err;
+//     }
+// })
+
+mongoose.connect('mongodb://localhost:27017/my_projects/du_bis_tracker', { useNewUrlParser: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log(err))
+
+const UserSchema = new mongoose.Schema({
+    name: String,
+    bus_name: String,
+    bus_code: String,
+    email: String,
+    password: String,
+    loggedIn: Boolean,
+    latitude: DOUBLE,
+    longitude: DOUBLE
+});
+
+const User = mongoose.model('User', UserSchema);
 
 
 app.post('/submitData', (req, res) => {
@@ -38,15 +57,38 @@ app.post('/submitData', (req, res) => {
     const isMatch = bcrypt.compareSync(password, hashedPassword);
 
     if (isMatch) {
-        db.query("INSERT into userdb(name, bus_name, bus_code, email, password, loggedIn) values(?,?,?,?,?,?)",
-            [name, bus_name, bus_code, email, hashedPassword, loggedIn], (err, result) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    res.send(result);
-                }
-            });
+        // db.query("INSERT into userdb(name, bus_name, bus_code, email, password, loggedIn) values(?,?,?,?,?,?)",
+        //     [name, bus_name, bus_code, email, hashedPassword, loggedIn], (err, result) => {
+        //         if (err) {
+        //             console.log(err);
+        //         } else {
+        //             res.send(result);
+        //         }
+        //     });
+
+        const user = new User({
+            name,
+            bus_name,
+            bus_code,
+            email,
+            password: hashedPassword,
+            loggedIn,
+            latitude: 0.0,
+            longitude: 0.0
+        });
+
+        user.save((err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else {
+                res.send(result);
+            }
+        });
+    } else {
+        res.status(400).send('Passwords do not match');
     }
+
 })
 
 app.post('/verifyUser', (req, res) => {
@@ -89,7 +131,7 @@ app.post('/verifyUser', (req, res) => {
                         if (err) {
                             console.log(err);
                         } else {
-                            res.send({sign: true, token});
+                            res.send({ sign: true, token });
                         }
                     })
                 }
@@ -97,8 +139,8 @@ app.post('/verifyUser', (req, res) => {
                     res.send(sign)
                 }
             }
-            else{
-                res.send({canLogIn: "False"});
+            else {
+                res.send({ canLogIn: "False" });
             }
         }
     })
@@ -158,14 +200,14 @@ app.post('/getPositions', (req, res) => {
 app.post('/checkValidation', (req, res) => {
     var token = req.body.token;
     const email = req.body.email;
-    if(token === null){
+    if (token === null) {
         token = 'qwer';
     }
 
     try {
         const sign = AuthService.isAuthenticated(token, email);
         console.log('sent');
-        res.send( sign );
+        res.send(sign);
     } catch (err) {
         console.error("wont be sent");
         res.status(500).send('Internal server error');
@@ -182,20 +224,20 @@ app.post('/delete', (req, res) => {
             res.send(result);
         }
     })
-   
+
 })
 
 app.post('/getUserInfo', (req, res) => {
     const email = req.body.email;
 
-    db.query("select name, bus_name, bus_code, email from userdb where email= ?", [email], (err, result) => {
+    db.query("select * from userdb where email= ?", [email], (err, result) => {
         if (err) {
             console.log(err);
         } else {
             res.send(result);
         }
     })
-   
+
 })
 
 
