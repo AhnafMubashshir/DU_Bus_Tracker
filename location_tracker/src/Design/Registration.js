@@ -98,6 +98,7 @@ const Registration = () => {
                 email,
                 password,
             }).then(response => {
+                console.log(response);
                 if(response.status == 200){
                     navigate('/login')
                 }
@@ -169,7 +170,7 @@ const Registration = () => {
 
                             <div className="flex flex-col pt-4">
                                 <label htmlFor="name" className="text-lg">
-                                    Name
+                                    Bus Name
                                 </label>
                                 <input
                                     type="text"
@@ -188,7 +189,7 @@ const Registration = () => {
 
                             <div className="flex flex-col pt-4">
                                 <label htmlFor="name" className="text-lg">
-                                    Name
+                                    Bus Code
                                 </label>
                                 <input
                                     type="text"

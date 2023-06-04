@@ -80,7 +80,7 @@ const Profile = () => {
         );
     }, [email, setIsAuthenticated]);
 
-    console.log("authentication: ", isAuthenticated);
+    // console.log("authentication: ", isAuthenticated);
 
     if (isAuthenticated === null) {
         return null;
@@ -100,7 +100,7 @@ const Profile = () => {
                         </a>
                         <div className="flex md:order-2 px-2">
                             <div className="space-x-6">
-                                <button type="button" className="text-white"><a href="./login.html">Login</a></button>
+                                {/* <button type="button" className="text-white"><a href="./login.html">Login</a></button> */}
                                 <button type="button" class="px-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center mr-3 md:mr-0 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"><a href={`/logout/${email}`}>Log Out</a></button>
                             </div>
 
@@ -126,8 +126,6 @@ const Profile = () => {
                 </nav>
             </div>
 
-
-
             <div>
                 <div style={{
                     display: 'flex',
@@ -135,38 +133,41 @@ const Profile = () => {
                     padding: '20px',
                     boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'
                 }}>
-                    <div style={{
-                        flex: 1,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                    }}>
-                        <table style={{
-                            borderCollapse: 'collapse',
-                            textAlign: 'left'
+
+                    {userInfo && (
+                        <div style={{
+                            flex: 1,
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
                         }}>
-                            <tr style={{
-                                backgroundColor: "#FFF" 
+                            <table style={{
+                                borderCollapse: 'collapse',
+                                textAlign: 'left'
                             }}>
-                                <th>User Name: </th>
-                                <td>{userInfo[0].name}</td>
-                            </tr>
-                            <tr style={{
-                                backgroundColor: "#FFF" 
-                            }}>
-                                <th>Bus Name: </th>
-                                <td>{userInfo[0].email}</td>
-                            </tr>
-                            <tr>
-                                <th>Bus Name: </th>
-                                <td>{userInfo[0].bus_name}</td>
-                            </tr>
-                            <tr>
-                                <th>Bus Code: </th>
-                                <td>{userInfo[0].bus_code}</td>
-                            </tr>
-                        </table>
-                    </div>
+                                <tr style={{
+                                    backgroundColor: "#FFF"
+                                }}>
+                                    <th>User Name: </th>
+                                    <td>{userInfo.name}</td>
+                                </tr>
+                                <tr style={{
+                                    backgroundColor: "#FFF"
+                                }}>
+                                    <th>Bus Name: </th>
+                                    <td>{userInfo.email}</td>
+                                </tr>
+                                <tr>
+                                    <th>Bus Name: </th>
+                                    <td>{userInfo.bus_name}</td>
+                                </tr>
+                                <tr>
+                                    <th>Bus Code: </th>
+                                    <td>{userInfo.bus_code}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    )}
 
                     <div style={{
                         flex: 2,
@@ -198,9 +199,9 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
-        </div>
+        </div >
     )
 }
 

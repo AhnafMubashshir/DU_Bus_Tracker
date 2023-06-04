@@ -4,45 +4,16 @@ const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const AuthService = require('./AuthService')
-const mongoose = require('mongoose');
-const { DOUBLE } = require('sequelize')
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// const mysql = require('mysql');
-// const db = mysql.createConnection({
-//     host: 'localhost',
-//     user: 'root',
-//     password: '',
-//     database: 'webtech'
-// })
-// db.connect(err => {
-//     if (err) {
-//         return err;
-//     }
-// })
-
-mongoose.connect('mongodb://localhost:27017/my_projects/du_bis_tracker', { useNewUrlParser: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log(err))
-
-const UserSchema = new mongoose.Schema({
-    name: String,
-    bus_name: String,
-    bus_code: String,
-    email: String,
-    password: String,
-    loggedIn: Boolean,
-    latitude: DOUBLE,
-    longitude: DOUBLE
-});
-
-const User = mongoose.model('User', UserSchema);
+const db = require('./models');
+const { Users } = require('./models');
 
 
-app.post('/submitData', (req, res) => {
+app.post('/submitData', async (req, res) => {
     console.log(req.body);
 
     const name = req.body.name;
@@ -56,17 +27,16 @@ app.post('/submitData', (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, salt);
     const isMatch = bcrypt.compareSync(password, hashedPassword);
 
-    if (isMatch) {
-        // db.query("INSERT into userdb(name, bus_name, bus_code, email, password, loggedIn) values(?,?,?,?,?,?)",
-        //     [name, bus_name, bus_code, email, hashedPassword, loggedIn], (err, result) => {
-        //         if (err) {
-        //             console.log(err);
-        //         } else {
-        //             res.send(result);
-        //         }
-        //     });
+    const oldUser = await Users.findOne({
+        where: {
+            email: email
+        }
+    })
 
-        const user = new User({
+    console.log(hashedPassword);
+
+    if (isMatch && !oldUser) {
+        const user = {
             name,
             bus_name,
             bus_code,
@@ -75,65 +45,75 @@ app.post('/submitData', (req, res) => {
             loggedIn,
             latitude: 0.0,
             longitude: 0.0
-        });
+        };
 
-        user.save((err, result) => {
-            if (err) {
-                console.log(err);
-                res.status(500).send(err);
-            } else {
-                res.send(result);
-            }
-        });
+        await Users.create(user);
+
+        res.send({ message: 'Success' });
     } else {
-        res.status(400).send('Passwords do not match');
+        res.status(400).send('An error occured');
     }
 
 })
 
-app.post('/verifyUser', (req, res) => {
+app.post('/verifyUser', async (req, res) => {
     // console.log(req);
 
     const email = req.body.email;
     const password = req.body.password;
     const loginSign = req.body.loginSign;
     const sign = false;
+    var isMatch = false;
 
-    // console.log('====================================');
-    // console.log(loginSign);
-    // console.log('====================================');
+    const user = await Users.findOne({
+        where: {
+            email: email
+        }
+    })
 
-    db.query("SELECT * FROM userdb where email=?", [email], (err, result) => {
-        // console.log(result[0].password);
-        const isMatch = bcrypt.compareSync(password, result[0].password);
+    if (!user) {
+        res.send({ message: 'User does not exists.' });
+    }
+    else {
+        isMatch = bcrypt.compareSync(password, user.password);
+
         if (isMatch) {
-            if (result[0].loggedIn == 'False') {
-                const hashedPassword = result[0].password
+            if (user.loggedIn == false) {
+                const hashedPassword = user.password;
                 const isMatched = bcrypt.compareSync(password, hashedPassword);
+                console.log(isMatched);
 
                 const secretKey = crypto.randomBytes(64).toString('hex');
+                console.log(isMatched);
                 AuthService.setSecretKey(secretKey)
+                console.log(isMatched);
 
-                const encryptionKey = crypto.createHash('sha256').update(result[0].email).digest();
+                const encryptionKey = crypto.createHash('sha256').update(user.email).digest();
+                console.log(isMatched);
                 const iv = Buffer.alloc(16, 0);
+                console.log(isMatched);
 
                 const cipher = crypto.createCipheriv('aes-256-cbc', encryptionKey, iv);
+                console.log(isMatched);
 
                 let encryptedSecretKey = cipher.update(secretKey, 'utf8', 'hex');
+                console.log(isMatched);
                 encryptedSecretKey += cipher.final('hex');
+                console.log(isMatched);
 
-                const payload = { email: result[0].email }
+                const payload = { email: user.email }
+                console.log(isMatched);
 
                 const token = jwt.sign(payload, encryptedSecretKey);
 
+                console.log(isMatched);
+
                 if (isMatched) {
-                    db.query("UPDATE userdb SET loggedIn = ? WHERE email = ?", [loginSign, email], (err, result) => {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            res.send({ sign: true, token });
-                        }
-                    })
+                    user.loggedIn = loginSign;
+
+                    await user.save();
+
+                    res.send({ sign: true, token });
                 }
                 else {
                     res.send(sign)
@@ -143,58 +123,55 @@ app.post('/verifyUser', (req, res) => {
                 res.send({ canLogIn: "False" });
             }
         }
-    })
+    }
+
 })
 
 
-app.post('/updateLoginSign', (req, res) => {
+app.post('/updateLoginSign', async (req, res) => {
     const email = req.body.email;
     const loginSign = req.body.loginSign;
 
-    // console.log('====================================');
-    // console.log(email);
-    // console.log('====================================');
-
-    db.query("UPDATE userdb SET loggedIn = ? WHERE email = ?", [loginSign, email], (err, result) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.send(result);
+    const user = await Users.findOne({
+        where: {
+            email: email
         }
-    })
+    });
+
+    user.loggedIn = loginSign;
+
+    await user.save();
+
+    res.send({ message: 'Success' });
 })
 
 
-app.post('/savePosition', (req, res) => {
+app.post('/savePosition', async (req, res) => {
     const email = req.body.email;
     const latitude = req.body.latitude;
     const longitude = req.body.longitude;
 
-    // console.log('====================================');
-    // console.log(email);
-    // console.log('====================================');
-
-    db.query("UPDATE userdb SET latitude = ?, longitude = ? WHERE email = ?", [latitude, longitude, email], (err, result) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.send(result);
+    const user = await Users.findOne({
+        where: {
+            email: email
         }
-    })
+    });
+
+    user.latitude = latitude;
+    user.longitude = longitude;
+
+    await user.save();
+
+    res.send({ message: 'Success' });
 })
 
-app.post('/getPositions', (req, res) => {
+app.post('/getPositions', async (req, res) => {
 
-    db.query("select bus_name, bus_code, latitude, longitude from userdb", (err, result) => {
-        if (err) {
-            console.log(err);
-        } else {
-            // console.log('====================================');
-            // console.log(result);
-            // console.log('====================================');
-            res.send(result);
-        }
+    const users = await Users.findAll({
+        attributes: ['bus_name', 'bus_code', 'latitude', 'longitude']
     })
+
+    res.send(users);
 })
 
 app.post('/checkValidation', (req, res) => {
@@ -214,33 +191,37 @@ app.post('/checkValidation', (req, res) => {
     }
 })
 
-app.post('/delete', (req, res) => {
+app.post('/delete', async (req, res) => {
     const email = req.body.email;
 
-    db.query("DELETE from userdb where email= ?", [email], (err, result) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.send(result);
+    const user = await Users.findOne({
+        where: {
+            email: email
         }
-    })
+    });
+
+    await user.destroy();
+
+    res.json({ message: 'User info deleted.' });
 
 })
 
-app.post('/getUserInfo', (req, res) => {
+app.post('/getUserInfo', async (req, res) => {
     const email = req.body.email;
 
-    db.query("select * from userdb where email= ?", [email], (err, result) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.send(result);
+    const user = await Users.findOne({
+        where: {
+            email: email
         }
     })
+
+    res.send(user);
 
 })
 
 
-app.listen(5050, () => {
-    console.log("Server listening on port 5050.");
+db.sequelize.sync().then(() => {
+    app.listen(5050, () => {
+        console.log("Server listening on port 5050.");
+    })
 })

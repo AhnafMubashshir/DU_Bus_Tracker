@@ -18,9 +18,12 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.5",
     "mysql": "^2.18.1",
+    "mysql2": "^3.3.3",
     "nodemon": "^2.0.22",
-    "sequelize": "^6.30.0",
-    "sequelize-cli": "^6.6.0",
+    "sequelize": "^6.32.0",
     "validator": "^13.9.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.0"
   }
 }
