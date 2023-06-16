@@ -61,7 +61,7 @@ const Login = () => {
         if (validateForm()) {
             const { email, password } = formData;
             const emailString = JSON.stringify(email);
-            const loginSign = 'True';
+            const loginSign = true;
             console.log({ email, password });
 
             axios.post(`http://${ip}/verifyUser`, {

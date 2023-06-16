@@ -19,11 +19,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         password: {
-            type: DataTypes.STRING(10000000),
+            type: DataTypes.STRING(1000),
             allowNull: false,
         },
         loggedIn: {
-            type: DataTypes.BOOLEAN,
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
         latitude: {

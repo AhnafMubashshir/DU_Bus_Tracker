@@ -21,7 +21,7 @@ app.post('/submitData', async (req, res) => {
     const bus_code = req.body.bus_code;
     const email = req.body.email;
     const password = req.body.password;
-    const loggedIn = 'False'
+    const loggedIn = false;
 
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);

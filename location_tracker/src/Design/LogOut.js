@@ -13,7 +13,7 @@ const LogOut = () => {
   useEffect(() => {
     AuthService.clearToken();
 
-    const loginSign = 'False';
+    const loginSign = false;
 
     axios.post(`http://${ip}/updateLoginSign`, {
       email,
